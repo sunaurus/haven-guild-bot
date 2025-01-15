@@ -42,7 +42,7 @@ func main() {
 
 	err = dg.Open()
 	if err != nil {
-		log.Fatalf("Error opening Discord onnection: %v", err)
+		log.Fatalf("Error opening Discord connection: %v", err)
 		return
 	}
 
