@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"log"
 )
@@ -66,7 +67,7 @@ func syncUserRoles(dg *discordgo.Session) error {
 	log.Print("Starting Discord user roles sync...")
 
 	for _, guild := range dg.State.Guilds {
-		log.Printf("Syncing roles for guild %v", guild.Name)
+		log.Printf("Syncing roles for guild %v (%v)", guild.Name, guild.ID)
 
 		members, err := dg.GuildMembers(guild.ID, "", 1000)
 		if err != nil {
@@ -157,12 +158,13 @@ func postRolesToHavenAPI(request RoleUpdateRequest) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+config.HavenAPIToken)
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 5 * time.Minute,
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to post roles to Haven API: %s", resp.Status)
